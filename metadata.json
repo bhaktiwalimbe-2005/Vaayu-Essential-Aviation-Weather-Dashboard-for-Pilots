@@ -1,0 +1,5 @@
+{
+  "name": "Vaayu Aviation Weather",
+  "description": "Professional aviation weather dashboard for pilots featuring real-time METAR data and flight category tracking.",
+  "requestFramePermissions": []
+}
