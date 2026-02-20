@@ -106,18 +106,44 @@ const FlightCategoryBadge = ({ category }: { category: MetarResponse['flight_rul
   </div>
 );
 
-const DataBox = ({ label, value, unit, icon: Icon }: { label: string, value: string | number, unit?: string, icon: any }) => (
-  <div className="bg-white/5 border border-white/10 p-4 rounded-xl flex flex-col gap-2">
-    <div className="flex items-center gap-2">
-      <Icon className="w-4 h-4 text-blue-400" />
-      <span className="data-label">{label}</span>
+const DataBox = ({ 
+  label, 
+  value, 
+  unit, 
+  icon: Icon,
+  status = 'neutral'
+}: { 
+  label: string, 
+  value: string | number, 
+  unit?: string, 
+  icon: any,
+  status?: 'safe' | 'unsafe' | 'neutral'
+}) => {
+  const statusClasses = {
+    safe: 'border-emerald-500/30 bg-emerald-500/5',
+    unsafe: 'border-red-500/30 bg-red-500/5',
+    neutral: 'border-white/10 bg-white/5'
+  };
+
+  const iconClasses = {
+    safe: 'text-emerald-400',
+    unsafe: 'text-red-400',
+    neutral: 'text-blue-400'
+  };
+
+  return (
+    <div className={`${statusClasses[status]} border p-4 rounded-xl flex flex-col gap-2 transition-all duration-500`}>
+      <div className="flex items-center gap-2">
+        <Icon className={`w-4 h-4 ${iconClasses[status]}`} />
+        <span className="data-label">{label}</span>
+      </div>
+      <div className="flex items-baseline gap-1">
+        <span className="text-2xl font-mono font-bold tracking-tight">{value}</span>
+        {unit && <span className="text-xs text-slate-500 font-mono">{unit}</span>}
+      </div>
     </div>
-    <div className="flex items-baseline gap-1">
-      <span className="text-2xl font-mono font-bold tracking-tight">{value}</span>
-      {unit && <span className="text-xs text-slate-500 font-mono">{unit}</span>}
-    </div>
-  </div>
-);
+  );
+};
 
 const WindDial = ({ direction, speed, gust }: { direction: number, speed: number, gust: number | null }) => {
   return (
@@ -284,7 +310,7 @@ export default function App() {
                 </div>
 
                 {/* Grid Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                   <DataBox 
                     label="Temperature" 
                     value={weather.temperature.value} 
@@ -296,6 +322,7 @@ export default function App() {
                     value={weather.altimeter.value.toFixed(2)} 
                     unit={weather.units.altimeter} 
                     icon={Activity} 
+                    status={weather.altimeter.value < 29.70 ? 'unsafe' : 'safe'}
                   />
                   <DataBox 
                     label="Dew Point" 
@@ -308,6 +335,13 @@ export default function App() {
                     value={Math.round(weather.relative_humidity)} 
                     unit="%" 
                     icon={Activity} 
+                  />
+                  <DataBox 
+                    label="Wind Gust" 
+                    value={weather.wind_gust?.value || 0} 
+                    unit={weather.units.wind_speed} 
+                    icon={Wind} 
+                    status={(weather.wind_gust?.value || 0) > 20 ? 'unsafe' : 'safe'}
                   />
                 </div>
 
